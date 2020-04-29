@@ -1,0 +1,41 @@
+<apex:page controller="AccControler">
+    <apex:slds />
+    <apex:form id="frm">
+        <apex:pageMessages id="errMsg" />
+        <apex:pageBlock rendered="{!!isError}">
+            <apex:pageBlockButtons >
+                <apex:commandButton value="Edit" action="{!editAcc}" rendered="{!!isEditable}" reRender="frm" />
+                <apex:commandButton value="Delete" rendered="{!!isEditable}" action="{!deleteAcc}" />
+                <apex:commandButton value="Save" rendered="{!isEditable}" action="{!saveAcc}" />
+                <apex:commandButton value="Cancel" action="{!cancelAcc}" rendered="{!isEditable}" reRender="frm" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection id="pbs" title="Account Information">
+                <apex:outputField value="{!acc.Name}" rendered="{!!isEditable}" />
+                <apex:inputField value="{!acc.Name}" rendered="{!isEditable}" />
+                
+                <apex:outputField value="{!acc.AccountNumber}" rendered="{!!isEditable}" />
+                <apex:inputField value="{!acc.AccountNumber}" rendered="{!isEditable}" />
+                <apex:outputField value="{!acc.Ownership}" rendered="{!!isEditable}" />
+                <apex:inputField value="{!acc.Ownership}" rendered="{!isEditable}" />
+            </apex:pageBlockSection>
+            <apex:pageBlockSection id="pbs1" title="Billing Information">
+               <apex:outputField value="{!acc.Industry}" rendered="{!!isEditable}" />
+                <apex:inputField value="{!acc.Industry}" rendered="{!isEditable}" />
+                <apex:outputField value="{!acc.NumberOfEmployees}" rendered="{!!isEditable}" />
+                <apex:inputField value="{!acc.NumberOfEmployees}" rendered="{!isEditable}" />
+                <apex:outputField value="{!acc.ShippingStreet}" rendered="{!!isEditable}" />
+                <apex:inputField value="{!acc.ShippingStreet}" rendered="{!isEditable}" />
+                <apex:outputField value="{!acc.Type}" rendered="{!!isEditable}" />
+                <apex:inputField value="{!acc.Type}" rendered="{!isEditable}" />
+            </apex:pageBlockSection>
+             <apex:pageBlockSection id="pbs2" title="Contact Information">
+               <apex:outputField value="{!acc.Phone}" rendered="{!!isEditable}" />
+                <apex:inputField value="{!acc.Phone}" rendered="{!isEditable}" />
+               <apex:outputField value="{!acc.Website}" rendered="{!!isEditable}" />
+                <apex:inputField value="{!acc.Website}" rendered="{!isEditable}" />
+                 <apex:outputField value="{!acc.Fax}" rendered="{!!isEditable}" />
+                <apex:inputField value="{!acc.Fax}" rendered="{!isEditable}" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

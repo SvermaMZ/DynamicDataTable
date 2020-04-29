@@ -1,0 +1,3 @@
+<design:component>
+	<design:attribute name="RecordId" label="Enter Record Id" description="Record Id for calculating data" />
+</design:component>

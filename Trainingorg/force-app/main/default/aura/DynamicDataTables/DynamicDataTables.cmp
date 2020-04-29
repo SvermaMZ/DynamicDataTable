@@ -1,0 +1,289 @@
+<aura:component controller="DynamicDataTableCtrl" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:hasSObjectName" access="global" >
+    <aura:attribute type="List" name="Data"/>
+    <aura:attribute name="count" type="integer" default= "0"/>
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="sObjectName" type="String" />
+    <aura:attribute name="ConfigDataTable" type="String" default="" />
+    <aura:attribute name="TableHeading" type="String" default="" />
+    <aura:attribute name="ConfigId" type="String" default="" />
+    <aura:attribute name="ObjName" type="string" />
+    <aura:attribute name="fields" type="String[]"  />
+    <aura:attribute name="Norecords" type="boolean"  default="true" />
+    <aura:attribute name="hasRecord" type="boolean" default="true" />
+    <aura:attribute name="Table_header_Records" type="object" access="global"/> 
+    <aura:attribute name="Error" type="boolean" default="false" description="use for displaying error in query or backend exception"/>
+    <aura:attribute name="Message" type="boolean" default="false" description="use for display no record found message"/>
+    <aura:handler name="init" value="{!this}" action="{!c.getRecordsForTable}"/>
+    
+    <!-- Lightning data services property attributes-->
+    <aura:attribute name="isOpen" type="boolean" access="global"/>
+    <aura:attribute name="isCRUD" type="boolean" access="global"/>
+    <aura:attribute name="CRUDVariable" type="String" access="global"/>
+    
+    <aura:attribute name="helpTextMessage" type="String"/>
+    <aura:attribute name="showHeaders" type="Boolean" default="false"/>
+    
+    <!-- pagination property attributes-->
+    <aura:attribute name="PageNumber" type="integer" default="1"/>
+    <aura:attribute name="TotalPages" type="integer" default="0"/>
+    <aura:attribute name="TotalRecords" type="integer" default="0"/>
+    <aura:attribute name="RecordStart" type="integer" default="0"/>
+    <aura:attribute name="RecordEnd" type="integer" default="0"/>
+    <aura:attribute name="Recordsperpage" type="Integer"/>
+    <aura:attribute name="Serversearching" type="boolean"/>
+    
+    
+    <aura:attribute name="isPagination" type="boolean" /> 
+    <aura:attribute name="paginationList" type="object" access="global"/>
+    
+    <!--Spinner property -->
+    <aura:attribute name="show" type="Boolean" default="false" />
+    <aura:if isTrue = "{!v.show}">
+        <div class="slds-align--absolute-center">
+            <lightning:spinner aura:id="lightning-spinner" variant="brand" size="large" />
+        </div>
+    </aura:if>
+    <!--<lightning:card footer="Table End here" iconName="utility:table" title="{!v.helpTextMessage}">-->
+    <aura:if isTrue="{!$Browser.isIPhone}">
+        
+        <div class="slds-grid slds-wrap">
+            <article class="slds-card">
+                <div class="slds-card__header slds-grid">
+                    <header class="slds-media slds-media--center slds-has-flexi-truncate">
+                        <div class="slds-media__figure">
+                            
+                        </div>
+                        <div class="slds-media__body slds-truncate">
+                            <h2>
+                                <a href="javascript:void(0);" class="slds-text-link--reset">
+                                    <span class="slds-text-heading--small">Contacts </span>
+                                </a>
+                            </h2>
+                        </div>
+                    </header>
+                    
+                </div>
+                <div class="slds-card__body">
+                    <div class="slds-card__body--inner slds-grid slds-wrap slds-grid--pull-padded">
+                        <div class="slds-tile slds-media slds-card__tile slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--1-of-3 slds-hint-parent">
+                            <div class="slds-media__figure">
+                                <div class="slds-icon_container">
+                                    
+                                    <span class="slds-assistive-text">{!v.TableHeading}</span>
+                                </div>
+                            </div>
+                            <div class="slds-media__body">	
+                                <aura:iteration items="{!v.Table_header_Records.ListOfEachRecord}" var="tar">
+                                    <div class="slds-grid slds-grid--align-spread slds-has-flexi-truncate">
+                                        <h3 class="slds-truncate" title="Related Record Title 1">Record</h3>
+                                        
+                                    </div>
+                                    <aura:iteration items="{!tar.recordValue}" var="value">
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        <div class="slds-tile__detail slds-text-body--small">
+                                            <dl class="slds-dl--horizontal">
+                                                <dt class="slds-dl--horizontal__label">
+                                                    <span class="slds-truncate" title="Type"> 
+                                                        <p class="slds-p-horizontal_small">
+                                                        {!value.recValue}
+                                                        </p>	</span>
+                                                </dt>
+                                                
+                                                
+                                                
+                                            </dl>
+                                        </div>
+                                    </aura:iteration>
+                                    <br/>
+                                </aura:iteration>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+        
+    </aura:if>
+    <aura:if isTrue="{!$Browser.formFactor == 'DESKTOP'}">
+        <div class="slds-card">       
+            <div class="slds-card__header slds-grid slds-wrap">
+                <header class="header-title-container slds-has-flexi-truncate" style="text-align: center">
+                    <h2><span class="slds-text-heading_small" style="font-weight: BOLD">{!v.TableHeading}</span></h2>
+                </header>
+                <lightning:icon iconName="action:refresh" alternativeText="Refresh Records" title="Refresh Records" size="xx-small" onclick="{!c.getRecordsForTable}"  />
+            </div>
+            <div class="slds-card__body" style="margin-bottom: 0">         
+                <div class="slds-grid slds-gutters slds-wrap" style="padding: 10px">
+                    <aura:if isTrue = "{!v.isPagination}">
+                        <div class="slds-col slds-size_2-of-4 slds-max-small-size_3-of-5 slds-small-size_3-of-4 slds-max-medium-size_3-of-5 slds-medium-size_2-of-4 slds-max-large-size_3-of-5 slds-large-size_2-of-4">        
+                            <lightning:select Label="Records per page:"  aura:id="pageSize" onchange="{!c.onSelectChange}" >
+                                <option value="{!v.Recordsperpage}">{!v.Recordsperpage }</option>
+                                <option value="{!v.Recordsperpage *2}">{!v.Recordsperpage * 2}</option>
+                                <option value="{!v.Recordsperpage *3 }">{!v.Recordsperpage *3}</option>
+                                <option value="{!v.Recordsperpage * 4}">{!v.Recordsperpage*4}</option>
+                            </lightning:select>
+                        </div>
+                    </aura:if>
+                    <div class="slds-col slds-size_2-of-4 slds-max-small-size_2-of-5 slds-small-size_1-of-4 slds-max-medium-size_2-of-5 slds-medium-size_2-of-4 slds-max-large-size_2-of-5 slds-large-size_2-of-4">
+                        <span onkeyup="{!c.keyup}"  > 
+                            <lightning:input placeholder="Search" type="search" variant="label-hidden" label="Search" aura:id="searchId"/>
+                        </span>
+                    </div>                 
+                </div>
+                <aura:if isTrue="{!v.Error}">
+                    <div class="slds-text-color--error">Error In Query Or Backend Exception, check With it </div>
+                </aura:if>
+                <aura:if isTrue="{!v.Message}">
+                    <div class="slds-text-color--error"> No Result Found...</div>
+                </aura:if>
+                <aura:if isTrue="{!v.showHeaders}">
+                    <div class="slds-center" style="align:center;">
+                        
+                        <div class="slds-table--header-fixed_container" style="padding: 0">
+                            
+                            <div class="slds-scrollable "  style="max-height:350px">
+                                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                                    <thead>
+                                        <!--### display the header of the table ###-->
+                                        <tr class="slds-text-title_caps">
+                                            <aura:iteration items="{!v.Table_header_Records.headerList}" var="h"> 
+                                                <th scope="col" onclick="{!c.sortColumn}" data-value="{!h.index}">
+                                                    <strong><div class="slds-truncate" title="{!h.name}">{!h.name}
+                                                        <aura:if isTrue="{! (h.sorted == 0) }">&nbsp;  &#9660; </aura:if>  
+                                                        <aura:if isTrue="{! (h.sorted == 1) }"> &nbsp;  &#9650; </aura:if>
+                                                        </div></strong>
+                                                </th>
+                                                
+                                            </aura:iteration>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!--### display all records of searchResult attribute by aura:iteration ###-->
+                                        <aura:if isTrue="{!v.Norecords}">
+                                            <aura:iteration items="{!v.Table_header_Records.ListOfEachRecord}" var="tar">
+                                                
+                                                <tr onclick="{!c.DOSomeThingOnCLickOfARow}" data-value="{!tar.recordId}">
+                                                    <aura:iteration items="{!tar.recordValue}" var="value">
+                                                        
+                                                        <td>
+                                                            <!--### show Formatted data ###-->
+                                                            <div class="slds-truncate">
+                                                                <aura:if isTrue="{!value.recFormat == 'Number'}">  
+                                                                    <lightning:formattedNumber value="{!value.recValue}" />    
+                                                                    <!--  <aura:set attribute = "else">
+                                                            {!value.recValue}
+                                                        </aura:set>-->
+                                                                </aura:if>
+                                                                
+                                                                <aura:if isTrue="{!value.recFormat == 'Phone'}">  
+                                                                    <lightning:formattedPhone value="{!value.recValue}" />    
+                                                                    <!--  <aura:set attribute = "else">
+                                                            {!value.recValue}
+                                                        </aura:set>-->
+                                                                </aura:if>
+                                                                
+                                                                <aura:if isTrue="{!value.recFormat == 'String'}">  
+                                                                    <lightning:formattedText value="{!value.recValue}" />    
+                                                                    <!--  <aura:set attribute = "else">
+                                                            {!value.recValue}
+                                                        </aura:set>-->
+                                                                </aura:if>
+                                                                
+                                                                <aura:if isTrue="{!value.recFormat == 'Look up'}">  
+                                                                    <a href="{!value.recValue}">{!value.recValue}</a>
+                                                                    <!-- <lightning:formattedUrl value="{!value.recValue}" />    -->
+                                                                    <!--  <aura:set attribute = "else">
+                                                            {!value.recValue}
+                                                        </aura:set>-->
+                                                                </aura:if>
+                                                                
+                                                                <aura:if isTrue="{!value.recFormat == 'Email'}">  
+                                                                    <lightning:formattedEmail value="{!value.recValue}" />    
+                                                                    <!--  <aura:set attribute = "else">
+                                                            {!value.recValue}
+                                                        </aura:set>-->
+                                                                </aura:if>
+                                                                
+                                                                <aura:if isTrue="{!value.recFormat == Null || !value.recFormat == ''}">  
+                                                                    <lightning:formattedText value="{!value.recValue}" />    
+                                                                    <!--  <aura:set attribute = "else">
+                                                            {!value.recValue}
+                                                        </aura:set>-->
+                                                                </aura:if>
+                                                            </div> 
+                                                        </td>
+                                                        
+                                                    </aura:iteration>  
+                                                </tr>
+                                                
+                                            </aura:iteration>
+                                            <aura:set attribute="else">
+                                                <tr>
+                                                    <td colspan = "{!v.Table_header_Records.headerList.length}">
+                                                        <div class="slds-text-heading_medium slds-text-align_center slds-text-color--error"> No Result Found...</div>
+                                                    </td>
+                                                </tr>
+                                            </aura:set>
+                                        </aura:if>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </aura:if> 
+                
+                <!-- LDS section -->
+                
+                <aura:if isTrue="{!v.isCRUD}">
+                    <aura:if isTrue="{!v.isOpen}">
+                        
+                        
+                        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                            <div class="slds-modal__container">
+                                
+                                <header class="slds-modal__header">
+                                    <lightning:buttonIcon iconName="utility:close"
+                                                          onclick="{!c.closeModel }"
+                                                          alternativeText="close"
+                                                          variant="bare-inverse"
+                                                          class="slds-modal__close"/>
+                                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{!v.ObjName}</h2>
+                                </header>
+                                
+                                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                    <lightning:recordForm
+                                                          recordId="{!v.CRUDVariable}"
+                                                          objectApiName="{!v.ObjName}"
+                                                          fields="{!v.fields}"
+                                                          layoutType="Compact"
+                                                          mode="edit"
+                                                          />
+                                </div>
+                                
+                                
+                            </div>
+                        </section>
+                        <div class="slds-backdrop slds-backdrop_open"></div>
+                    </aura:if>
+                    
+                </aura:if> 
+                <!-- pagination -->
+                <aura:if isTrue = "{!v.isPagination}">
+                    <div class="slds-clearfix">
+                        <div class="slds-page-header" role="banner">
+                            <div class="slds-float_right">            
+                                <lightning:button disabled="{!v.PageNumber == 1}" variant="brand" aura:id="prevPage" label="Prev" onclick="{!c.handlePrev}" />            
+                                <lightning:button disabled="{!v.PageNumber == v.TotalPages}" aura:id="nextPage" variant="brand" label="Next" onclick="{!c.handleNext}"/>
+                            </div>
+                            <p class="slds-page-header__title">{!v.RecordStart}-{!v.RecordEnd} of {!v.TotalRecords} | Page {!v.PageNumber} of {!v.TotalPages}</p>
+                        </div>
+                    </div>
+                </aura:if>
+            </div>
+        </div> 
+    </aura:if>
+</aura:component>

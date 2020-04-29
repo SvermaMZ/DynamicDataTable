@@ -1,0 +1,5 @@
+<aura:component controller = "demo" >
+	<aura:attribute name="accMap" type="Map" />
+    <aura:attribute name="hasRecord" type="boolean" default="true" />
+    <aura:handler name="init" value="{!this}" action="{!c.getTableRows}"/>
+</aura:component>

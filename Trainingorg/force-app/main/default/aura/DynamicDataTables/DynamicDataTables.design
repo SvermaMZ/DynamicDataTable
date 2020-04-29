@@ -1,0 +1,4 @@
+<design:component>  
+    <design:attribute name="ConfigDataTable" label="Enter Configuration Name" description="Record Id for calculating data" />
+    <design:attribute name="TableHeading" label="Enter Heading for Table" description="Heading for displating on top of table" />
+</design:component>

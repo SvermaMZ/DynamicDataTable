@@ -1,0 +1,114 @@
+<aura:component controller="DynamicDataTableCtrl" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId" access="global" >
+    <aura:attribute type="List" name="Data"/>
+    <aura:attribute name="mycolumns" type="List"/>
+    <aura:attribute name="RecordId" type="String" default="" /> 
+    <aura:attribute name="ConfigDataTable" type="String" default="" />
+    <aura:attribute name="ConfigId" type="String" default="" />
+    <aura:attribute name="Table_header_Records" type="object" access="global"/> 
+    <aura:attribute name="Error" type="boolean" default="false" description="use for displaying error in query or backend exception"/>
+    <aura:attribute name="Message" type="boolean" default="false" description="use for display no record found message"/>
+    <aura:handler name="init" value="{!this}" action="{!c.getRecordsForTable}"/>
+    <aura:attribute name="helpTextMessage" type="String"/>
+    <aura:attribute name="showHeaders" type="Boolean" default="false"/>
+    
+    <!-- pagination property attributes-->
+    <aura:attribute name="PageNumber" type="integer" default="1"/>
+    <aura:attribute name="TotalPages" type="integer" default="0"/>
+    <aura:attribute name="TotalRecords" type="integer" default="0"/>
+    <aura:attribute name="RecordStart" type="integer" default="0"/>
+    <aura:attribute name="RecordEnd" type="integer" default="0"/>
+    <aura:attribute name="paginationList" type="object" access="global"/> 
+    
+    <!--Spinner property-->
+    <aura:handler event="aura:waiting" action="{!c.showSpinner}"/> 
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+    <center><ui:spinner aura:id="spinner"/></center>
+    
+    <!--<lightning:card footer="Table End here" iconName="utility:table" title="{!v.helpTextMessage}">-->
+	<div>
+		<center><b><h1 class="slds-text-heading--medium">{!v.helpTextMessage}</h1></b></center>
+        <br/>
+        <table class="slds-table slds-table_cell-buffer slds-table_header-hidden slds-table_bordered">
+            <tr> 
+                <td>
+                    <div class="slds-align_absolute-left">
+                    <div class="slds-size_2-of-5">  
+                        <!-- Lightning input -->
+                        <ui:inputSelect label="Display Records Per Page: " aura:id="pageSize" change="{!c.onSelectChange}">
+                            <ui:inputSelectOption text="100" label="100" value="true"/>
+                            <ui:inputSelectOption text="200" label="200"/>
+                            <ui:inputSelectOption text="300" label="300"/>
+                        </ui:inputSelect>
+                    	<br/>                    
+                    </div> 
+                    </div>
+                </td>
+                <td>
+                    <div class="slds-align_absolute-left">Entries</div>  
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="slds-align_absolute-left">
+                    <span onkeyup="{!c.keyup}"> 
+                        <lightning:input label="Search" class="slds-input" placeholder="Type here to search" aura:id="searchId"/>
+                    </span>
+                    </div>
+                </td>
+            </tr>
+        </table >
+        <aura:if isTrue="{!v.Error}">
+            <div class="slds-text-color--error">Error In Query Or Backend Exception, check With it </div>
+        </aura:if>
+        <aura:if isTrue="{!v.Message}">
+            <div class="slds-text-color--error"> No Result Found...</div>
+        </aura:if>
+        <aura:if isTrue="{!v.showHeaders}">
+            <div class="slds-center" style="align:center;">
+                <div class="slds-table--header-fixed_container" style="height:350px;">
+                    <div class="slds-scrollable_y slds-scrollable_x"  style="height:100%;">
+                        <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                            <thead>
+								<!--### display the header of the table ###-->
+                                <tr class="slds-text-title_caps">
+                                    <aura:iteration items="{!v.Table_header_Records.headerList}" var="h"> 
+                                        <th scope="col" onclick="{!c.sortColumn}" data-value="{!h.index}">
+                                            <strong><div class="slds-truncate" title="{!h.name}">{!h.name}
+                                                <aura:if isTrue="{! (h.sorted == 0) }">&nbsp;  &#9660; </aura:if>  
+                                                <aura:if isTrue="{! (h.sorted == 1) }"> &nbsp;  &#9650; </aura:if>
+                                            </div></strong>
+                                        </th>
+                                        
+                                    </aura:iteration>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!--### display all records of searchResult attribute by aura:iteration ###-->
+                                <aura:iteration items="{!v.Table_header_Records.ListOfEachRecord}" var="tar">
+                                    <tr onclick="{!c.DOSomeThingOnCLickOfARow}" data-value="{!tar.recordId}">
+                                        <aura:iteration items="{!tar.recordValue}" var="value">
+                                            <td>
+												<div class="slds-truncate">{!value}</div> 
+                                            </td>
+                                        </aura:iteration>  
+                                    </tr>
+                                    
+                                </aura:iteration>
+                            </tbody>
+                        </table>
+                    </div>
+				</div>
+            </div>
+        </aura:if> 
+		<div class="slds-clearfix">
+            <div class="slds-page-header" role="banner">
+                <div class="slds-float_right">            
+                    <lightning:button disabled="{!v.PageNumber == 1}" variant="brand" aura:id="prevPage" label="Prev" onclick="{!c.handlePrev}" />            
+                    <lightning:button disabled="{!v.PageNumber == v.TotalPages}" aura:id="nextPage" variant="brand" label="Next" onclick="{!c.handleNext}"/>
+                </div>
+                <p class="slds-page-header__title">{!v.RecordStart}-{!v.RecordEnd} of {!v.TotalRecords} | Page {!v.PageNumber} of {!v.TotalPages}</p>
+            </div>
+        </div>
+	</div>
+</aura:component>
